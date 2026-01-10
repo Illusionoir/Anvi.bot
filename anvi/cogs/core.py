@@ -3,6 +3,8 @@ from discord.ext import commands
 from discord import app_commands
 from difflib import get_close_matches
 
+from anvi.cogs.help_view import HelpView
+
 
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -18,11 +20,13 @@ class Core(commands.Cog):
 
     @commands.hybrid_command(name="ping", description="Show bot latency")
     async def ping(self, ctx: commands.Context) -> None:
+        """Check the bot's latency."""
         latency = round(self.bot.latency * 1000)
         await ctx.send(f"🏓 Pong! `{latency}ms`")
 
     @commands.hybrid_command(name="info", description="Show bot information")
     async def info(self, ctx: commands.Context) -> None:
+        """Display information about the bot."""
         guild = ctx.guild
         bot = self.bot.user
 
@@ -58,29 +62,14 @@ class Core(commands.Cog):
 
     @commands.hybrid_command(name="help", description="Show all commands")
     async def help_command(self, ctx: commands.Context) -> None:
+        """Open the interactive help menu."""
         embed = discord.Embed(
             title="📬 Help Menu",
-            description="Here are all available commands:",
+            description="Select a category from the dropdown below.",
             color=discord.Color.blurple(),
         )
 
-        by_category: dict[str, list[str]] = {}
-
-        for cmd in self.bot.commands:
-            if not isinstance(cmd, commands.Command):
-                continue
-
-            category = getattr(cmd, "category", "Other")
-            by_category.setdefault(category, []).append(f"`/{cmd.name}`")
-
-        for category, cmds in sorted(by_category.items()):
-            embed.add_field(
-                name=category,
-                value=", ".join(sorted(cmds)),
-                inline=False,
-            )
-
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, view=HelpView(self.bot))
 
     # ===================== ERROR HANDLING =====================
 
