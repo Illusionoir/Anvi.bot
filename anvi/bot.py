@@ -19,7 +19,7 @@ class AnviBot(commands.Bot):
         )
 
     async def setup_hook(self) -> None:
-        # cogs will be loaded here later
+        await self.load_extension("anvi.cogs.core")
         pass
 
 bot = AnviBot()
