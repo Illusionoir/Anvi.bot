@@ -45,6 +45,48 @@ class Utility(commands.Cog, name="Utility"):
         )
 
         await ctx.send(embed=embed)
+        
+    @commands.hybrid_command(
+        name="servericon",
+        description="Show the server icon",
+        aliases=["si"],
+    )
+    async def servericon(self, ctx: commands.Context):
+        if not ctx.guild.icon:
+            await ctx.send("❌ This server has no icon.")
+            return
+
+        embed = discord.Embed(
+            title=f"{ctx.guild.name} Icon",
+            color=discord.Color.random(),
+        )
+        embed.set_image(url=ctx.guild.icon.url)
+        embed.set_footer(
+            text=f"Requested by {ctx.author}",
+            icon_url=ctx.author.display_avatar.url,
+        )
+        await ctx.send(embed=embed)
+        
+    @commands.hybrid_command(
+        name="serverbanner",
+        description="Show the server banner",
+        aliases=["sb"],
+    )
+    async def serverbanner(self, ctx: commands.Context):
+        if not ctx.guild.banner:
+            await ctx.send("❌ This server has no banner.")
+            return
+
+        embed = discord.Embed(
+            title=f"{ctx.guild.name} Banner",
+            color=discord.Color.random(),
+        )
+        embed.set_image(url=ctx.guild.banner.url)
+        embed.set_footer(
+            text=f"Requested by {ctx.author}",
+            icon_url=ctx.author.display_avatar.url,
+        )
+        await ctx.send(embed=embed)        
 
     # ============================ ROLE LIST ============================
 
@@ -203,8 +245,9 @@ class Utility(commands.Cog, name="Utility"):
     # ============================ AVATAR ============================
 
     @commands.hybrid_command(
-        name="av",
+        name="avatar",
         description="Display profile picture of a user",
+        aliases=["av"],
     )
     async def av(self, ctx: commands.Context, user: discord.Member | None = None):
         user = user or ctx.author
@@ -222,6 +265,31 @@ class Utility(commands.Cog, name="Utility"):
         )
 
         await ctx.send(embed=embed)
+    
+    # ============================ Banner ============================
+        
+    @commands.hybrid_command(
+        name="banner",
+        description="Show a user's banner",
+    )
+    async def banner(self, ctx: commands.Context, member: discord.Member = None):
+        member = member or ctx.author
+        user = await self.bot.fetch_user(member.id)
+
+        if not user.banner:
+            await ctx.send("❌ This user has no banner.")
+            return
+
+        embed = discord.Embed(
+            title=f"{member.display_name}'s Banner",
+            color=discord.Color.random(),
+        )
+        embed.set_image(url=user.banner.url)
+        embed.set_footer(
+            text=f"Requested by {ctx.author}",
+            icon_url=ctx.author.display_avatar.url,
+        )
+        await ctx.send(embed=embed)    
 
     # ============================ NICKNAME ============================
 
