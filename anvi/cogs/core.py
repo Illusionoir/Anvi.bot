@@ -3,6 +3,7 @@ from discord.ext import commands
 from discord import app_commands
 from difflib import get_close_matches
 
+
 class Core(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -27,7 +28,7 @@ class Core(commands.Cog):
 
         embed = discord.Embed(
             title=f"✨ {bot.name}'s Info",
-            color=discord.Color.magenta()
+            color=discord.Color.magenta(),
         )
         embed.set_thumbnail(url=bot.display_avatar.url)
 
@@ -36,12 +37,12 @@ class Core(commands.Cog):
             embed.add_field(
                 name="🌸 Nickname",
                 value=f"`{guild.me.display_name}`",
-                inline=False
+                inline=False,
             )
             embed.add_field(
                 name="🎗️ Roles",
                 value=", ".join(roles) or "None",
-                inline=False
+                inline=False,
             )
 
         embed.add_field(name="🎨 Creator", value="`Illusion`", inline=True)
@@ -49,7 +50,7 @@ class Core(commands.Cog):
         embed.add_field(
             name="⚡ Ping",
             value=f"`{round(self.bot.latency * 1000)}ms`",
-            inline=False
+            inline=False,
         )
 
         embed.set_footer(text="Made with 💟")
@@ -60,7 +61,7 @@ class Core(commands.Cog):
         embed = discord.Embed(
             title="📬 Help Menu",
             description="Here are all available commands:",
-            color=discord.Color.blurple()
+            color=discord.Color.blurple(),
         )
 
         by_category: dict[str, list[str]] = {}
@@ -76,7 +77,7 @@ class Core(commands.Cog):
             embed.add_field(
                 name=category,
                 value=", ".join(sorted(cmds)),
-                inline=False
+                inline=False,
             )
 
         await ctx.send(embed=embed)
@@ -84,7 +85,11 @@ class Core(commands.Cog):
     # ===================== ERROR HANDLING =====================
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error: commands.CommandError) -> None:
+    async def on_command_error(
+        self,
+        ctx: commands.Context,
+        error: commands.CommandError,
+    ) -> None:
         if isinstance(error, commands.CommandNotFound):
             name = ctx.message.content.split()[0].lstrip(",/")
             names = [cmd.name for cmd in self.bot.commands]
@@ -104,24 +109,25 @@ class Core(commands.Cog):
             await ctx.send("❌ Invalid argument.")
             return
 
-        raise error  # bubble up unexpected errors
+        raise error
 
-    @app_commands.error
+    @commands.Cog.listener()
     async def on_app_command_error(
         self,
         interaction: discord.Interaction,
         error: app_commands.AppCommandError,
     ) -> None:
-        try:
-            await interaction.response.send_message(
-                f"❌ Slash command error: {error}",
-                ephemeral=True,
-            )
-        except discord.InteractionResponded:
+        if interaction.response.is_done():
             await interaction.followup.send(
                 f"❌ Slash command error: {error}",
                 ephemeral=True,
             )
+        else:
+            await interaction.response.send_message(
+                f"❌ Slash command error: {error}",
+                ephemeral=True,
+            )
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Core(bot))
