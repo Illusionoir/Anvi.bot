@@ -322,7 +322,35 @@ class Utility(commands.Cog, name="Utility"):
     async def nickname_error(self, ctx: commands.Context, error):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("You do not have permission to use this command.")
+            
+    @commands.hybrid_command(
+        name="nickreset",
+        description="Reset a user's nickname",
+        aliases=["nr"],
+    )
+    @commands.has_permissions(manage_nicknames=True)
+    async def nickreset(
+        self,
+        ctx: commands.Context,
+        member: discord.Member,
+    ):
+        try:
+            await member.edit(nick=None)
+            await ctx.send(
+                f"Nickname reset for {member.mention}"
+            )
+        except discord.Forbidden:
+            await ctx.send(
+                "I do not have permission to change nicknames for this user."
+            )
+        except discord.HTTPException as e:
+            await ctx.send(f"Failed to reset nickname: {e}")
 
+    @nickreset.error
+    async def nickreset_error(self, ctx: commands.Context, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("You do not have permission to use this command.")
+    
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Utility(bot))
