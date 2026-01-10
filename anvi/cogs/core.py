@@ -61,15 +61,18 @@ class Core(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.hybrid_command(name="help", description="Show all commands")
-    async def help_command(self, ctx: commands.Context) -> None:
-        """Open the interactive help menu."""
+    async def help_command(self, ctx: commands.Context):
         embed = discord.Embed(
-            title="📬 Help Menu",
+            title="📬 Anvi Help Menu",
             description="Select a category from the dropdown below.",
             color=discord.Color.blurple(),
         )
 
-        await ctx.send(embed=embed, view=HelpView(self.bot))
+        try:
+            await ctx.author.send(embed=embed, view=HelpView(self.bot))
+            await ctx.send("📬 I’ve sent you a DM with all my commands!")
+        except discord.Forbidden:
+            await ctx.send("❌ I can’t DM you. Please enable DMs from server members.")
 
     # ===================== ERROR HANDLING =====================
 

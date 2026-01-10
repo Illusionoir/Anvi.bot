@@ -20,6 +20,9 @@ class AnviBot(commands.Bot):
 
     async def setup_hook(self) -> None:
         await self.load_extension("anvi.cogs.core")
+        await self.load_extension("anvi.cogs.utility")
+        await self.load_extension("anvi.cogs.moderation")
+        await self.load_extension("anvi.cogs.fun")
         pass
 
 bot = AnviBot()
