@@ -74,52 +74,6 @@ class Core(commands.Cog):
         except discord.Forbidden:
             await ctx.send("❌ I can’t DM you. Please enable DMs from server members.")
 
-    # ===================== ERROR HANDLING =====================
-
-    @commands.Cog.listener()
-    async def on_command_error(
-        self,
-        ctx: commands.Context,
-        error: commands.CommandError,
-    ) -> None:
-        if isinstance(error, commands.CommandNotFound):
-            name = ctx.message.content.split()[0].lstrip(",/")
-            names = [cmd.name for cmd in self.bot.commands]
-            matches = get_close_matches(name, names, n=1)
-
-            if matches:
-                await ctx.send(f"❌ Unknown command. Did you mean `/{matches[0]}`?")
-            else:
-                await ctx.send("❌ Unknown command.")
-            return
-
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("❌ Missing required argument.")
-            return
-
-        if isinstance(error, commands.BadArgument):
-            await ctx.send("❌ Invalid argument.")
-            return
-
-        raise error
-
-    @commands.Cog.listener()
-    async def on_app_command_error(
-        self,
-        interaction: discord.Interaction,
-        error: app_commands.AppCommandError,
-    ) -> None:
-        if interaction.response.is_done():
-            await interaction.followup.send(
-                f"❌ Slash command error: {error}",
-                ephemeral=True,
-            )
-        else:
-            await interaction.response.send_message(
-                f"❌ Slash command error: {error}",
-                ephemeral=True,
-            )
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Core(bot))
