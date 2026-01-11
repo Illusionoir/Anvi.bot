@@ -10,6 +10,7 @@ INTENTS.presences = True
 INTENTS.guilds = True
 INTENTS.reactions = True
 
+
 class AnviBot(commands.Bot):
     def __init__(self) -> None:
         super().__init__(
@@ -24,9 +25,12 @@ class AnviBot(commands.Bot):
         await self.load_extension("anvi.cogs.utility")
         await self.load_extension("anvi.cogs.moderation")
         await self.load_extension("anvi.cogs.fun")
+        await bot.load_extension("anvi.cogs.economy")
         pass
 
+
 bot = AnviBot()
+
 
 @bot.event
 async def on_ready() -> None:
@@ -37,10 +41,11 @@ async def on_ready() -> None:
 
     print(f"[READY] Logged in as {bot.user} ({bot.user.id})")
 
+
 def main() -> None:
-    start_web()        # Render keep-alive
+    start_web()  # Render keep-alive
     bot.run(config.DISCORD_TOKEN)
+
 
 if __name__ == "__main__":
     main()
-
