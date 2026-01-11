@@ -57,9 +57,7 @@ class Moderation(commands.Cog, name="Moderation"):
             await ctx.send(embed=embed)
 
         except discord.Forbidden:
-            await ctx.send(
-                "❌ I don't have permission to add roles to that member."
-            )
+            await ctx.send("❌ I don't have permission to add roles to that member.")
         except discord.HTTPException as e:
             await ctx.send(f"❌ Failed to add role: {e}")
 
@@ -106,19 +104,16 @@ class Moderation(commands.Cog, name="Moderation"):
             return True
 
         deleted = await ctx.channel.purge(
-            limit=amount + 1,  # remove command message too
+            limit=amount + 1,
             check=check,
             bulk=True,
         )
 
-        deleted_messages = [
-            m for m in deleted if m.id != ctx.message.id
-        ]
+        deleted_messages = [m for m in deleted if m.id != ctx.message.id]
 
         if not deleted_messages:
             return
 
-        # ===== create purge.txt in memory =====
         buffer = io.StringIO()
 
         for msg in reversed(deleted_messages):
@@ -157,6 +152,58 @@ class Moderation(commands.Cog, name="Moderation"):
             ),
             file=file,
         )
+
+    # ============================ KICK ============================
+
+    @commands.hybrid_command(
+        name="kick",
+        description="Kick a member from the server",
+    )
+    @commands.has_permissions(kick_members=True)
+    async def kick(
+        self,
+        ctx: commands.Context,
+        member: discord.Member,
+        *,
+        reason: str | None = "No reason provided",
+    ):
+        if member == ctx.author:
+            await ctx.send("❌ You cannot kick yourself.")
+            return
+
+        if member == ctx.guild.owner:
+            await ctx.send("❌ You cannot kick the server owner.")
+            return
+
+        if member == self.bot.user:
+            await ctx.send("❌ You cannot kick me.")
+            return
+
+        await member.kick(reason=reason)
+
+        embed = discord.Embed(
+            title="👢 Member Kicked",
+            color=discord.Color.orange(),
+        )
+        embed.add_field(name="User", value=member.mention, inline=False)
+        embed.add_field(name="Moderator", value=ctx.author.mention, inline=False)
+        embed.add_field(name="Reason", value=reason, inline=False)
+
+        await ctx.send(embed=embed)
+
+        config = get_guild_config(ctx.guild.id)
+        if not config:
+            return
+
+        channel_id = config.get("modlog_channel_id")
+        if not channel_id:
+            return
+
+        log_channel = ctx.guild.get_channel(channel_id)
+        if not log_channel:
+            return
+
+        await log_channel.send(embed=embed)
 
 
 async def setup(bot: commands.Bot) -> None:
